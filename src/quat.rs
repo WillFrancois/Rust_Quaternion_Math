@@ -1,3 +1,5 @@
+use std::ops;
+
 #[derive(Debug)]
 pub struct Quaternion {
     r: f64,
@@ -17,21 +19,29 @@ impl Quaternion {
     }
 }
 
-pub fn quat_add(q_1: Quaternion, q_2: Quaternion) -> Quaternion {
-    Quaternion {
-        r: q_1.r + q_2.r,
-        i: q_1.i + q_2.i,
-        j: q_1.j + q_2.j,
-        k: q_1.k + q_2.k,
+impl ops::Add<Quaternion> for Quaternion {
+    type Output = Quaternion;
+
+    fn add(self, _rhs: Quaternion) -> Quaternion {
+        return Quaternion {
+            r: self.r + _rhs.r,
+            i: self.i + _rhs.i,
+            j: self.j + _rhs.j,
+            k: self.k + _rhs.k,
+        };
     }
 }
 
-fn quat_mult(q_1: Quaternion, q_2: Quaternion) -> Quaternion {
-    Quaternion {
-        r: (q_1.r * q_2.r - q_1.i * q_2.i - q_1.j * q_2.j - q_1.k * q_2.k),
-        i: (q_1.r * q_2.i + q_1.i * q_2.r + q_1.j * q_2.k - q_1.k * q_2.j),
-        j: (q_1.r * q_2.j - q_1.i * q_2.k + q_1.j * q_2.r + q_1.k * q_2.i),
-        k: (q_1.r * q_2.k + q_1.i * q_2.j - q_1.j * q_2.i + q_1.k * q_2.r),
+impl ops::Mul<Quaternion> for Quaternion {
+    type Output = Quaternion;
+
+    fn mul(self, _rhs: Quaternion) -> Quaternion {
+        return Quaternion {
+            r: (self.r * _rhs.r - self.i * _rhs.i - self.j * _rhs.j - self.k * _rhs.k),
+            i: (self.r * _rhs.i + self.i * _rhs.r + self.j * _rhs.k - self.k * _rhs.j),
+            j: (self.r * _rhs.j - self.i * _rhs.k + self.j * _rhs.r + self.k * _rhs.i),
+            k: (self.r * _rhs.k + self.i * _rhs.j - self.j * _rhs.i + self.k * _rhs.r),
+        };
     }
 }
 
@@ -42,8 +52,8 @@ pub fn quat_rotate(q_1: Quaternion, point: Quaternion) -> Quaternion {
         j: -q_1.j,
         k: -q_1.k,
     };
-    let inter_quat = quat_mult(q_1, point);
-    quat_mult(inter_quat, inv_q)
+    let inter_quat = q_1 * point;
+    inter_quat * inv_q
 }
 
 pub fn quat_rotate_by_angle(
